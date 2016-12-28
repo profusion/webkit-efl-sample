@@ -1,0 +1,4 @@
+WebKit-EFL Sample
+
+This is a very minimum WebKit-EFL sample using only Ecore-Evas. Unlike
+WebKit-EFL's MiniBrowser, it doesn't need Elementary.
