@@ -1,4 +1,4 @@
-AC_INIT([webkit-efl-sample], [1], [http://profusion.mobi/])
+AC_INIT([webkit-efl-sample], [2], [http://profusion.mobi/])
 
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])

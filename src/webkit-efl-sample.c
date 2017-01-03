@@ -22,6 +22,10 @@ static const Ecore_Getopt options = {
   "Example WebKit-EFL loaded",
   EINA_TRUE,
   {
+    ECORE_GETOPT_STORE_STR('e', "engine", "The Ecore-Evas engine (see --list-engines)"),
+    ECORE_GETOPT_CALLBACK_NOARGS('E', "list-engines", "List available Ecore-Evas engines",
+                                 ecore_getopt_callback_ecore_evas_list_engines, NULL),
+    ECORE_GETOPT_STORE_STR(0, "engine-options", "Extra options to pass to engine, like display=XXX;rotation=90"),
     ECORE_GETOPT_CALLBACK_ARGS('g', "geometry", "Specify window geometry",
                                "X:Y:WIDTH:HEIGHT",
                                ecore_getopt_callback_geometry_parse,
@@ -39,11 +43,17 @@ int
 main(int argc, char *argv[])
 {
    const char *url = DEFAULT_URL;
+   char *engine = NULL;
+   char *engine_options = NULL;
    int args = 1;
    Eina_Rectangle geometry = { 0, 0, 800, 600 };
    Eina_Bool fullscreen = EINA_FALSE;
    Eina_Bool quit_option = EINA_FALSE;
    Ecore_Getopt_Value values[] = {
+     ECORE_GETOPT_VALUE_STR(engine),
+     ECORE_GETOPT_VALUE_BOOL(quit_option),
+     ECORE_GETOPT_VALUE_STR(engine_options),
+
      ECORE_GETOPT_VALUE_PTR_CAST(geometry),
      ECORE_GETOPT_VALUE_BOOL(fullscreen),
 
@@ -78,10 +88,10 @@ main(int argc, char *argv[])
 
    if (args < argc) url = argv[args];
 
-   ee = ecore_evas_new(NULL, geometry.x, geometry.y, geometry.w, geometry.h, NULL);
+   ee = ecore_evas_new(engine, geometry.x, geometry.y, geometry.w, geometry.h, engine_options);
    if (!ee)
      {
-        fputs("ERROR: could not create window.\n", stderr);
+        fprintf(stderr, "ERROR: could not create window. --engine=%s --engine-options=%s\n", engine ? engine : "", engine_options ? engine_options : "");
         goto end;
      }
 
