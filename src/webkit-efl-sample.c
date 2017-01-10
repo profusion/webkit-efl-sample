@@ -107,6 +107,9 @@ main(int argc, char *argv[])
    ecore_evas_show(ee);
    ecore_evas_callback_delete_request_set(ee, on_delete);
 
+   ecore_evas_focus_set(ee, EINA_TRUE);
+   evas_object_focus_set(web_view, EINA_TRUE);
+
    ecore_main_loop_begin();
 
    ecore_evas_free(ee);
