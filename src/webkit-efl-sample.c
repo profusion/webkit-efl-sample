@@ -101,6 +101,7 @@ main(int argc, char *argv[])
    Ewk_View_Smart_Class sc = EWK_VIEW_SMART_CLASS_INIT_NAME_VERSION("Webkit_Efl_Sample_View");
    Evas_Smart *smart;
    Evas_Object *web_view;
+   int w, h;
    int ret = EXIT_SUCCESS;
 
    ecore_init();
@@ -141,7 +142,11 @@ main(int argc, char *argv[])
    web_view = ewk_view_smart_add(evas, smart,
                                  ewk_context_default_get(),
                                  ewk_page_group_create("main"));
-   evas_object_resize(web_view, geometry.w, geometry.h);
+
+   /* query size so rotation from engine_options is automatically managed */
+   ecore_evas_geometry_get(ee, NULL, NULL, &w, &h);
+   evas_object_resize(web_view, w, h);
+
    evas_object_show(web_view);
    ecore_evas_object_associate(ee, web_view, ECORE_EVAS_OBJECT_ASSOCIATE_BASE);
 
