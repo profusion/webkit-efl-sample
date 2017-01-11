@@ -11,6 +11,17 @@
 #define DEFAULT_THEME EWEBKIT2_DATADIR "/themes/default.edj"
 #endif
 
+#ifndef DEFAULT_WIDTH
+#define DEFAULT_WIDTH 800
+#endif
+
+#ifndef DEFAULT_HEIGHT
+#define DEFAULT_HEIGHT 600
+#endif
+
+#define __STR(x) #x
+#define _STR(x) __STR(x)
+
 static void
 on_delete(Ecore_Evas *ee EINA_UNUSED)
 {
@@ -45,7 +56,8 @@ static const Ecore_Getopt options = {
 
     ECORE_GETOPT_STORE_STR('t', "theme", "Path to Edje (*.edj) file with WebKit-EFL theme. Default=" DEFAULT_THEME),
 
-    ECORE_GETOPT_CALLBACK_ARGS('g', "geometry", "Specify window geometry",
+    ECORE_GETOPT_CALLBACK_ARGS('g', "geometry", "Specify window geometry. "
+                               "Default=0:0:" _STR(DEFAULT_WIDTH) ":" _STR(DEFAULT_HEIGHT),
                                "X:Y:WIDTH:HEIGHT",
                                ecore_getopt_callback_geometry_parse,
                                NULL),
@@ -66,7 +78,7 @@ main(int argc, char *argv[])
    char *engine_options = NULL;
    char *theme = DEFAULT_THEME;
    int args = 1;
-   Eina_Rectangle geometry = { 0, 0, 800, 600 };
+   Eina_Rectangle geometry = { 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT };
    Eina_Bool fullscreen = EINA_FALSE;
    Eina_Bool quit_option = EINA_FALSE;
    Ecore_Getopt_Value values[] = {
