@@ -7,6 +7,10 @@
 #define DEFAULT_URL "http://profusion.mobi/"
 #endif
 
+#ifndef DEFAULT_THEME
+#define DEFAULT_THEME EWEBKIT2_DATADIR "/themes/default.edj"
+#endif
+
 static void
 on_delete(Ecore_Evas *ee EINA_UNUSED)
 {
@@ -38,6 +42,9 @@ static const Ecore_Getopt options = {
     ECORE_GETOPT_CALLBACK_NOARGS('E', "list-engines", "List available Ecore-Evas engines",
                                  ecore_getopt_callback_ecore_evas_list_engines, NULL),
     ECORE_GETOPT_STORE_STR(0, "engine-options", "Extra options to pass to engine, like display=XXX;rotation=90"),
+
+    ECORE_GETOPT_STORE_STR('t', "theme", "Path to Edje (*.edj) file with WebKit-EFL theme. Default=" DEFAULT_THEME),
+
     ECORE_GETOPT_CALLBACK_ARGS('g', "geometry", "Specify window geometry",
                                "X:Y:WIDTH:HEIGHT",
                                ecore_getopt_callback_geometry_parse,
@@ -57,6 +64,7 @@ main(int argc, char *argv[])
    const char *url = DEFAULT_URL;
    char *engine = NULL;
    char *engine_options = NULL;
+   char *theme = DEFAULT_THEME;
    int args = 1;
    Eina_Rectangle geometry = { 0, 0, 800, 600 };
    Eina_Bool fullscreen = EINA_FALSE;
@@ -65,6 +73,8 @@ main(int argc, char *argv[])
      ECORE_GETOPT_VALUE_STR(engine),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
      ECORE_GETOPT_VALUE_STR(engine_options),
+
+     ECORE_GETOPT_VALUE_STR(theme),
 
      ECORE_GETOPT_VALUE_PTR_CAST(geometry),
      ECORE_GETOPT_VALUE_BOOL(fullscreen),
@@ -123,6 +133,7 @@ main(int argc, char *argv[])
    evas_object_show(web_view);
    ecore_evas_object_associate(ee, web_view, ECORE_EVAS_OBJECT_ASSOCIATE_BASE);
 
+   ewk_view_theme_set(web_view, theme);
    ewk_view_url_set(web_view, url);
 
    ecore_evas_fullscreen_set(ee, fullscreen);

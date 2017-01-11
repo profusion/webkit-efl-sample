@@ -10,6 +10,9 @@ AC_PROG_CC
 PKG_PROG_PKG_CONFIG
 
 PKG_CHECK_MODULES([WEBKIT_EFL], [ecore evas ecore-evas ewebkit2])
+PKG_CHECK_VAR([EWEBKIT2_DATADIR], [ewebkit2], [datadir])
+
+AC_DEFINE_UNQUOTED([EWEBKIT2_DATADIR], ["${EWEBKIT2_DATADIR}"], [WebKit-EFL data dir from pkg-config])
 
 AC_OUTPUT([
 Makefile
