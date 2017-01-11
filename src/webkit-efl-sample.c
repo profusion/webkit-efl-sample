@@ -40,6 +40,10 @@ on_web_view_close(Ewk_View_Smart_Data *sd)
    ecore_main_loop_quit();
 }
 
+static const char *rotation_choices[] = {
+  "0", "90", "180", "270", NULL
+};
+
 static const Ecore_Getopt options = {
   "webkit-efl",
   "%prog [options] [url]",
@@ -62,6 +66,7 @@ static const Ecore_Getopt options = {
                                ecore_getopt_callback_geometry_parse,
                                NULL),
     ECORE_GETOPT_STORE_TRUE('f', "fullscreen", "Start in fullscreen."),
+    ECORE_GETOPT_CHOICE('r', "rotation", "Rotation in degrees. If set this will override any values given to --engine-options", rotation_choices),
 
     ECORE_GETOPT_VERSION('V', "version"),
     ECORE_GETOPT_COPYRIGHT('C', "copyright"),
@@ -77,6 +82,7 @@ main(int argc, char *argv[])
    char *engine = NULL;
    char *engine_options = NULL;
    char *theme = DEFAULT_THEME;
+   char *rotation = NULL;
    int args = 1;
    Eina_Rectangle geometry = { 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT };
    Eina_Bool fullscreen = EINA_FALSE;
@@ -90,6 +96,7 @@ main(int argc, char *argv[])
 
      ECORE_GETOPT_VALUE_PTR_CAST(geometry),
      ECORE_GETOPT_VALUE_BOOL(fullscreen),
+     ECORE_GETOPT_VALUE_STR(rotation),
 
      ECORE_GETOPT_VALUE_BOOL(quit_option),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
@@ -154,6 +161,8 @@ main(int argc, char *argv[])
    ewk_view_url_set(web_view, url);
 
    ecore_evas_fullscreen_set(ee, fullscreen);
+   if (rotation)
+     ecore_evas_rotation_set(ee, atoi(rotation));
    ecore_evas_show(ee);
    ecore_evas_callback_delete_request_set(ee, on_delete);
 
