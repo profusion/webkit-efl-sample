@@ -13,6 +13,18 @@ on_delete(Ecore_Evas *ee EINA_UNUSED)
    ecore_main_loop_quit();
 }
 
+static void
+on_js_alert(Ewk_View_Smart_Data *sd, const char *message)
+{
+   printf("JS ALERT:\n%s\n\n", message);
+}
+
+static void
+on_web_view_close(Ewk_View_Smart_Data *sd)
+{
+   ecore_main_loop_quit();
+}
+
 static const Ecore_Getopt options = {
   "webkit-efl",
   "%prog [options] [url]",
@@ -64,6 +76,8 @@ main(int argc, char *argv[])
    };
    Ecore_Evas *ee;
    Evas *evas;
+   Ewk_View_Smart_Class sc = EWK_VIEW_SMART_CLASS_INIT_NAME_VERSION("Webkit_Efl_Sample_View");
+   Evas_Smart *smart;
    Evas_Object *web_view;
    int ret = EXIT_SUCCESS;
 
@@ -96,7 +110,15 @@ main(int argc, char *argv[])
      }
 
    evas = ecore_evas_get(ee);
-   web_view = ewk_view_add(evas);
+
+   ewk_view_smart_class_set(&sc);
+   sc.run_javascript_alert = on_js_alert;
+   sc.window_close = on_web_view_close;
+
+   smart = evas_smart_class_new(&sc.sc);
+   web_view = ewk_view_smart_add(evas, smart,
+                                 ewk_context_default_get(),
+                                 ewk_page_group_create("main"));
    evas_object_resize(web_view, geometry.w, geometry.h);
    evas_object_show(web_view);
    ecore_evas_object_associate(ee, web_view, ECORE_EVAS_OBJECT_ASSOCIATE_BASE);
