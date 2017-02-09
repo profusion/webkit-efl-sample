@@ -19,6 +19,10 @@
 #define DEFAULT_HEIGHT 600
 #endif
 
+#ifndef DEFAULT_EXTENSION_DIR
+#define DEFAULT_EXTENSION_DIR "/tmp/"
+#endif
+
 #define __STR(x) #x
 #define _STR(x) __STR(x)
 
@@ -60,6 +64,8 @@ static const Ecore_Getopt options = {
 
     ECORE_GETOPT_STORE_STR('t', "theme", "Path to Edje (*.edj) file with WebKit-EFL theme. Default=" DEFAULT_THEME),
 
+    ECORE_GETOPT_STORE_STR('x', "extension", "Directory where the Webkit extensions are installed. Default=" DEFAULT_EXTENSION_DIR),
+
     ECORE_GETOPT_CALLBACK_ARGS('g', "geometry", "Specify window geometry. "
                                "Default=0:0:" _STR(DEFAULT_WIDTH) ":" _STR(DEFAULT_HEIGHT),
                                "X:Y:WIDTH:HEIGHT",
@@ -82,6 +88,7 @@ main(int argc, char *argv[])
    char *engine = NULL;
    char *engine_options = NULL;
    char *theme = DEFAULT_THEME;
+   char *extension_dir = DEFAULT_EXTENSION_DIR;
    char *rotation = NULL;
    int args = 1;
    Eina_Rectangle geometry = { 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT };
@@ -93,6 +100,8 @@ main(int argc, char *argv[])
      ECORE_GETOPT_VALUE_STR(engine_options),
 
      ECORE_GETOPT_VALUE_STR(theme),
+
+     ECORE_GETOPT_VALUE_STR(extension_dir),
 
      ECORE_GETOPT_VALUE_PTR_CAST(geometry),
      ECORE_GETOPT_VALUE_BOOL(fullscreen),
@@ -108,6 +117,7 @@ main(int argc, char *argv[])
    Ewk_View_Smart_Class sc = EWK_VIEW_SMART_CLASS_INIT_NAME_VERSION("Webkit_Efl_Sample_View");
    Evas_Smart *smart;
    Evas_Object *web_view;
+   Ewk_Context *ctx;
    int w, h;
    int ret = EXIT_SUCCESS;
 
@@ -145,18 +155,18 @@ main(int argc, char *argv[])
    sc.run_javascript_alert = on_js_alert;
    sc.window_close = on_web_view_close;
 
+   ctx = ewk_context_new_with_extensions_path(extension_dir);
    smart = evas_smart_class_new(&sc.sc);
    web_view = ewk_view_smart_add(evas, smart,
-                                 ewk_context_default_get(),
+                                 ctx,
                                  ewk_page_group_create("main"));
-
+   ewk_object_unref(ctx);
    /* query size so rotation from engine_options is automatically managed */
    ecore_evas_geometry_get(ee, NULL, NULL, &w, &h);
    evas_object_resize(web_view, w, h);
 
    evas_object_show(web_view);
    ecore_evas_object_associate(ee, web_view, ECORE_EVAS_OBJECT_ASSOCIATE_BASE);
-
    ewk_view_theme_set(web_view, theme);
    ewk_view_url_set(web_view, url);
 
