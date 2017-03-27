@@ -73,7 +73,7 @@ static const Ecore_Getopt options = {
                                NULL),
     ECORE_GETOPT_STORE_TRUE('f', "fullscreen", "Start in fullscreen."),
     ECORE_GETOPT_CHOICE('r', "rotation", "Rotation in degrees. If set this will override any values given to --engine-options", rotation_choices),
-
+    ECORE_GETOPT_STORE_TRUE('d', "dev-mode", "This enables the remote webinspector server. To access it, connect to http://localhost:8080"),
     ECORE_GETOPT_VERSION('V', "version"),
     ECORE_GETOPT_COPYRIGHT('C', "copyright"),
     ECORE_GETOPT_HELP('h', "help"),
@@ -94,6 +94,7 @@ main(int argc, char *argv[])
    Eina_Rectangle geometry = { 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT };
    Eina_Bool fullscreen = EINA_FALSE;
    Eina_Bool quit_option = EINA_FALSE;
+   Eina_Bool dev_mode = EINA_FALSE;
    Ecore_Getopt_Value values[] = {
      ECORE_GETOPT_VALUE_STR(engine),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
@@ -107,6 +108,7 @@ main(int argc, char *argv[])
      ECORE_GETOPT_VALUE_BOOL(fullscreen),
      ECORE_GETOPT_VALUE_STR(rotation),
 
+     ECORE_GETOPT_VALUE_BOOL(dev_mode),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
      ECORE_GETOPT_VALUE_BOOL(quit_option),
@@ -120,10 +122,10 @@ main(int argc, char *argv[])
    Ewk_Context *ctx;
    int w, h;
    int ret = EXIT_SUCCESS;
+   Ewk_Page_Group *group;
 
    ecore_init();
    ecore_evas_init();
-   ewk_init();
 
    ecore_app_args_set(argc, (const char **)argv);
    args = ecore_getopt_parse(&options, values, argc, argv);
@@ -151,15 +153,23 @@ main(int argc, char *argv[])
 
    evas = ecore_evas_get(ee);
 
+   if (dev_mode)
+     putenv("WEBKIT_INSPECTOR_SERVER=127.0.0.1:8080");
+
+   ewk_init();
    ewk_view_smart_class_set(&sc);
    sc.run_javascript_alert = on_js_alert;
    sc.window_close = on_web_view_close;
 
    ctx = ewk_context_new_with_extensions_path(extension_dir);
    smart = evas_smart_class_new(&sc.sc);
+   group = ewk_page_group_create("main");
+   if  (dev_mode)
+     ewk_settings_developer_extras_enabled_set(ewk_page_group_settings_get(group),
+                                               EINA_TRUE);
    web_view = ewk_view_smart_add(evas, smart,
                                  ctx,
-                                 ewk_page_group_create("main"));
+                                 group);
    ewk_object_unref(ctx);
    /* query size so rotation from engine_options is automatically managed */
    ecore_evas_geometry_get(ee, NULL, NULL, &w, &h);
